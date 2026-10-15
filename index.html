@@ -21,23 +21,22 @@
             <p class="text-xs text-gray-400 mt-1">กรุณายืนยันตัวตนเพื่อเข้าใช้งานแดชบอร์ด</p>
         </div>
         
-        <form onsubmit="handleLogin(event)" class="space-y-4">
+        <div class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold text-gray-300 mb-1">ชื่อผู้ใช้งาน (Username)</label>
-                <input type="text" id="username" required placeholder="admin" class="w-full bg-[#171a21] border border-[#38607d] rounded-md px-3 py-2 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+                <input type="text" id="username" value="admin" class="w-full bg-[#171a21] border border-[#38607d] rounded-md px-3 py-2 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
             </div>
             <div>
                 <label class="block text-xs font-semibold text-gray-300 mb-1">รหัสผ่าน (Password)</label>
-                <input type="password" id="password" required placeholder="999" class="w-full bg-[#171a21] border border-[#38607d] rounded-md px-3 py-2 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+                <input type="password" id="password" value="999" class="w-full bg-[#171a21] border border-[#38607d] rounded-md px-3 py-2 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
             </div>
-            <div id="loginError" class="text-red-400 text-xs text-center hidden">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง (แนะนำ: admin / 999)</div>
-            <button type="submit" class="w-full bg-[#66c0f4] hover:bg-[#53b0e3] text-[#1b2838] font-bold py-2 rounded-md transition text-xs uppercase tracking-wider">
+            <button type="button" onclick="handleLogin()" class="w-full bg-[#66c0f4] hover:bg-[#53b0e3] text-[#1b2838] font-bold py-2.5 rounded-md transition text-xs uppercase tracking-wider cursor-pointer">
                 เข้าสู่ระบบ
             </button>
-        </form>
+        </div>
     </div>
 
-    <!-- 2. ส่วนหน้า Dashboard หลัก -->
+    <!-- 2. ส่วนหน้า Dashboard หลัก (100 เกม) -->
     <div id="dashboardSection" class="w-full max-w-6xl steam-bg p-4 rounded-xl shadow-2xl hidden">
         <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#38607d]">
             <div class="flex items-center gap-3">
@@ -51,7 +50,7 @@
                 <span class="bg-[#171a21] text-green-400 text-xs px-3 py-1.5 rounded-full border border-green-500/30">
                     <i class="fa-solid fa-circle text-[8px] mr-1"></i> พร้อมใช้งาน
                 </span>
-                <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded-md transition">
+                <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded-md transition cursor-pointer">
                     <i class="fa-solid fa-right-from-bracket mr-1"></i> ออกจากระบบ
                 </button>
             </div>
@@ -174,86 +173,4 @@
             { name: "Sekiro: Shadows Die Twice", developer: "FromSoftware", genres: "Action;Adventure", price: "$59.99", ratings: "250,000" },
             { name: "Dark Souls III", developer: "FromSoftware", genres: "RPG", price: "$59.99", ratings: "230,000" },
             { name: "Devil May Cry 5", developer: "Capcom", genres: "Action", price: "$29.99", ratings: "90,000" },
-            { name: "Resident Evil 4 (Remake)", developer: "Capcom", genres: "Action", price: "$39.99", ratings: "140,000" },
-            { name: "Resident Evil 2 (Remake)", developer: "Capcom", genres: "Action", price: "$39.99", ratings: "120,000" },
-            { name: "BioShock Infinite", developer: "Irrational Games", genres: "Action", price: "$29.99", ratings: "140,000" },
-            { name: "Borderlands 2", developer: "Gearbox Software", genres: "Action;RPG", price: "$19.99", ratings: "280,000" },
-            { name: "Halo: The Master Chief Collection", developer: "343 Industries", genres: "Action", price: "$39.99", ratings: "190,000" },
-            { name: "Doom Eternal", developer: "id Software", genres: "Action", price: "$39.99", ratings: "170,000" },
-            { name: "Metal Gear Solid V: The Phantom Pain", developer: "Konami Digital Entertainment", genres: "Action;Adventure", price: "$19.99", ratings: "120,000" },
-            { name: "Batman: Arkham Knight", developer: "Rocksteady Studios", genres: "Action;Adventure", price: "$19.99", ratings: "95,000" },
-            { name: "Middle-earth: Shadow of Mordor", developer: "Monolith Productions", genres: "Action;Adventure", price: "$19.99", ratings: "90,000" },
-            { name: "NieR:Automata", developer: "Square Enix", genres: "Action;RPG", price: "$39.99", ratings: "95,000" },
-            { name: "Persona 5 Royal", developer: "ATLUS", genres: "RPG", price: "$59.99", ratings: "45,000" },
-            { name: "Yakuza 0", developer: "Ryu Ga Gotoku Studio", genres: "Action;Adventure;RPG", price: "$19.99", ratings: "110,000" },
-            { name: "Like a Dragon: Infinite Wealth", developer: "Ryu Ga Gotoku Studio", genres: "RPG", price: "$69.99", ratings: "15,000" },
-            { name: "Final Fantasy XIV Online", developer: "Square Enix", genres: "RPG", price: "$19.99", ratings: "75,000" },
-            { name: "OCTOPATH TRAVELER II", developer: "Square Enix", genres: "RPG", price: "$59.99", ratings: "12,000" },
-            { name: "Chained Echoes", developer: "Matthias Linda", genres: "Indie;RPG", price: "$24.99", ratings: "6,500" },
-            { name: "Sea of Stars", developer: "Sabotage Studio", genres: "Indie;RPG", price: "$34.99", ratings: "11,000" },
-            { name: "Grim Dawn", developer: "Crate Entertainment", genres: "Action;RPG", price: "$24.99", ratings: "75,000" },
-            { name: "Titan Quest Anniversary Edition", developer: "Iron Lore Entertainment", genres: "Action;RPG", price: "$19.99", ratings: "35,000" },
-            { name: "Torchlight II", developer: "Runic Games", genres: "Action;RPG", price: "$19.99", ratings: "40,000" },
-            { name: "Age of Empires II: Definitive Edition", developer: "Forgotten Empires", genres: "Strategy", price: "$19.99", ratings: "120,000" },
-            { name: "Age of Empires IV", developer: "Relic Entertainment", genres: "Strategy", price: "$39.99", ratings: "45,000" },
-            { name: "Total War: WARHAMMER III", developer: "CREATIVE ASSEMBLY", genres: "Strategy", price: "$59.99", ratings: "70,000" },
-            { name: "Stellaris", developer: "Paradox Development Studio", genres: "Strategy", price: "$39.99", ratings: "110,000" },
-            { name: "Hearts of Iron IV", developer: "Paradox Development Studio", genres: "Simulation;Strategy", price: "$39.99", ratings: "190,000" },
-            { name: "Crusader Kings III", developer: "Paradox Development Studio", genres: "RPG;Simulation;Strategy", price: "$49.99", ratings: "90,000" },
-            { name: "Europa Universalis IV", developer: "Paradox Development Studio", genres: "Simulation;Strategy", price: "$39.99", ratings: "110,000" },
-            { name: "Company of Heroes 2", developer: "Relic Entertainment", genres: "Strategy", price: "$19.99", ratings: "80,000" },
-            { name: "Supreme Commander: Forged Alliance", developer: "Gas Powered Games", genres: "Strategy", price: "$14.99", ratings: "15,000" }
-        ];
-
-        function handleLogin(event) {
-            event.preventDefault();
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-
-            if (user === "admin" && pass === "999") {
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('dashboardSection').classList.remove('hidden');
-                renderWebTable(allGames);
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        }
-
-        function handleLogout() {
-            document.getElementById('dashboardSection').classList.add('hidden');
-            document.getElementById('loginSection').classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('loginError').classList.add('hidden');
-        }
-
-        function renderWebTable(data) {
-            const tbody = document.getElementById('notebookTableBody');
-            tbody.innerHTML = '';
-            if(data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-3 px-3 text-center text-gray-400">ไม่พบข้อมูลเกม</td></tr>`;
-                document.getElementById('resultCount').innerText = `แสดงผล 0 รายการ`;
-                return;
-            }
-            data.forEach(g => {
-                tbody.innerHTML += `
-                    <tr class="steam-table-row">
-                        <td class="py-2.5 px-3 font-semibold text-white">${g.name}</td>
-                        <td class="py-2.5 px-3 text-gray-300">${g.developer}</td>
-                        <td class="py-2.5 px-3"><span class="bg-[#171a21] px-2 py-0.5 rounded text-[#66c0f4] border border-[#38607d]">${g.genres}</span></td>
-                        <td class="py-2.5 px-3 text-yellow-400 font-semibold">${g.price}</td>
-                        <td class="py-2.5 px-3 text-green-400">${g.ratings}</td>
-                    </tr>
-                `;
-            });
-            document.getElementById('resultCount').innerText = `แสดงผล ${data.length} รายการ`;
-        }
-
-        function filterTable() {
-            const keyword = document.getElementById('notebookSearch').value.toLowerCase();
-            const filtered = allGames.filter(g => g.name.toLowerCase().includes(keyword) || g.developer.toLowerCase().includes(keyword));
-            renderWebTable(filtered);
-        }
-    </script>
-</body>
-</html>
+            { name: "Resident Evil 4 (Remake)", developer: "Capcom", genres: "Action", price: "$39.99", ratings: "14
