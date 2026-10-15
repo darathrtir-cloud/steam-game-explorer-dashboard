@@ -72,27 +72,45 @@
         </table>
     </div>
 
-    <script><script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const searchInput = document.querySelector('input[placeholder*="ค้นหา"], input[type="text"]');
-    const tableRows = document.querySelectorAll('tbody tr');
+    <script>
+        const webGames = [
+            { name: "Counter-Strike", developer: "Valve", genres: "Action", price: "$7.19", ratings: "124,534" },
+            { name: "Dota 2", developer: "Valve", genres: "Action;Free to Play", price: "Free", ratings: "850,000" },
+            { name: "Stardew Valley", developer: "ConcernedApe", genres: "Indie;RPG", price: "$14.99", ratings: "420,000" },
+            { name: "Terraria", developer: "Re-Logic", genres: "Action;Indie", price: "$9.99", ratings: "750,000" },
+            { name: "Portal 2", developer: "Valve", genres: "Action;Adventure", price: "$9.99", ratings: "510,000" }
+        ];
 
-    if (searchInput) {
-      searchInput.addEventListener('input', function(e) {
-        const query = e.target.value.toLowerCase().trim();
+        function renderWebTable(data) {
+            const tbody = document.getElementById('notebookTableBody');
+            tbody.innerHTML = '';
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-3 px-3 text-center text-gray-400">ไม่พบข้อมูลเกม</td></tr>`;
+                document.getElementById('resultCount').innerText = `แสดงผล 0 รายการ`;
+                return;
+            }
+            data.forEach(g => {
+                tbody.innerHTML += `
+                    <tr class="steam-table-row">
+                        <td class="py-2.5 px-3 font-semibold text-white">${g.name}</td>
+                        <td class="py-2.5 px-3 text-gray-300">${g.developer}</td>
+                        <td class="py-2.5 px-3"><span class="bg-[#171a21] px-2 py-0.5 rounded text-[#66c0f4] border border-[#38607d]">${g.genres}</span></td>
+                        <td class="py-2.5 px-3 text-yellow-400 font-semibold">${g.price}</td>
+                        <td class="py-2.5 px-3 text-green-400">${g.ratings}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('resultCount').innerText = `แสดงผล ${data.length} รายการ`;
+        }
 
-        tableRows.forEach(row => {
-          const text = row.textContent.toLowerCase();
-          if (text.includes(query)) {
-            row.style.display = ""; // แสดงแถวที่ค้นพบ
-          } else {
-            row.style.display = "none"; // ซ่อนแถวที่ไม่เกี่ยวข้อง
-          }
-        });
-      });
-    }
-  });
-</script>
- </body>
+        function filterTable() {
+            const keyword = document.getElementById('notebookSearch').value.toLowerCase();
+            const filtered = webGames.filter(g => g.name.toLowerCase().includes(keyword) || g.developer.toLowerCase().includes(keyword));
+            renderWebTable(filtered);
+        }
+
+        renderWebTable(webGames);
+    </script>
+</body>
 </html>
 
