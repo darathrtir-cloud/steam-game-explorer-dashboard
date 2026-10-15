@@ -1,193 +1,105 @@
-import gradio as gr
-import pandas as pd
-import matplotlib.pyplot as plt
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Steam Game Explorer Dashboard - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .steam-bg { background-color: #1b2838; color: #c7d5e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .steam-card { background-color: #2a475e; border: 1px solid #38607d; }
+        .steam-table-row:hover { background-color: #38607d50; }
+    </style>
+</head>
+<body class="steam-bg min-h-screen flex items-center justify-center p-4">
 
-# 1. โหลดข้อมูลจากไฟล์ steam.csv
-df = pd.read_csv('steam.csv')
-
-# ดึงรายชื่อเกมทั้งหมดมาทำเป็นตัวเลือกใน Dropdown (จำกัด 2,000 เกมแรก)
-all_game_names = df['name'].dropna().unique().tolist()[:2000]
-
-# 2. ฟังก์ชันสร้างกราฟวิเคราะห์ตลาดที่ 1: แนวเกมยอดนิยม (Top Genres)
-def generate_genre_chart():
-    plt.figure(figsize=(9, 4.5))
-    top_genres = df['genres'].str.split(';').explode().value_counts().head(5)
-    
-    ax = top_genres.plot(kind='barh', color='#66c0f4', edgecolor='#2a475e', linewidth=1.5)
-    plt.title('Top 5 Game Genres Market Share on Steam', fontsize=13, fontweight='bold', color='white', pad=15)
-    plt.xlabel('Number of Games', fontsize=11, color='#ffffff')
-    plt.ylabel('Genre', fontsize=11, color='#ffffff')
-    
-    plt.gca().set_facecolor('#1b2838')
-    plt.gcf().set_facecolor('#171a21')
-    plt.tick_params(colors='white', labelsize=10)
-    plt.gca().invert_yaxis()
-    
-    for spine in plt.gca().spines.values():
-        spine.set_color('#38607d')
-        
-    plt.tight_layout()
-    path1 = 'genre_chart.png'
-    plt.savefig(path1, format='png', facecolor='#171a21')
-    plt.close()
-    return path1
-
-# 3. ฟังก์ชันสร้างกราฟวิเคราะห์ตลาดที่ 2: ความสัมพันธ์ราคาและรีวิว (Price vs Positive Ratings)
-def generate_scatter_chart():
-    plt.figure(figsize=(9, 4.5))
-    sample_df = df[df['price'] < 60].sample(n=1000, random_state=42)
-    
-    plt.scatter(sample_df['price'], sample_df['positive_ratings'], color='#a4d007', alpha=0.6, edgecolors='none', s=25)
-    plt.title('Game Price vs Positive Ratings Distribution', fontsize=13, fontweight='bold', color='white', pad=15)
-    plt.xlabel('Price ($)', fontsize=11, color='#ffffff')
-    plt.ylabel('Positive Ratings', fontsize=11, color='#ffffff')
-    
-    plt.gca().set_facecolor('#1b2838')
-    plt.gcf().set_facecolor('#171a21')
-    plt.tick_params(colors='white', labelsize=10)
-    
-    for spine in plt.gca().spines.values():
-        spine.set_color('#38607d')
-        
-    plt.tight_layout()
-    path2 = 'scatter_chart.png'
-    plt.savefig(path2, format='png', facecolor='#171a21')
-    plt.close()
-    return path2
-
-# 4. ฟังก์ชันประมวลผลข้อมูลและสร้าง HTML Table (ปรับหัวตารางให้ตัวหนังสือเป็นสีขาวและฟ้าชัดเจน)
-def explore_steam_market(selected_game):
-    if not selected_game:
-        filtered = df.head(15)
-    else:
-        filtered = df[df['name'] == selected_game]
-        if filtered.empty:
-            filtered = df[df['name'].str.contains(selected_game, case=False, na=False)].head(15)
-    
-    total_found = len(filtered)
-    avg_price = filtered['price'].mean() if total_found > 0 else 0
-    avg_positive = filtered['positive_ratings'].mean() if total_found > 0 else 0
-    
-    # สร้าง HTML สำหรับ KPI Cards สถิติ
-    kpi_html = f"""
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px;">
-        <div style="background: #2a475e; padding: 15px; border-radius: 8px; border: 1px solid #38607d; text-align: center;">
-            <p style="color: #c7d5e0; font-size: 13px; margin: 0;"><b>🎮 เกมที่พบในระบบ</b></p>
-            <h3 style="color: #ffffff; font-size: 22px; margin: 5px 0 0 0;">{total_found:,} รายการ</h3>
+    <!-- 1. ส่วนหน้า Login -->
+    <div id="loginSection" class="steam-card w-full max-w-md p-8 rounded-xl shadow-2xl">
+        <div class="text-center mb-6">
+            <i class="fa-brands fa-steam text-5xl text-[#66c0f4] mb-3"></i>
+            <h2 class="text-2xl font-bold text-white">เข้าสู่ระบบ Steam Explorer</h2>
+            <p class="text-xs text-gray-400 mt-1">กรุณายืนยันตัวตนเพื่อเข้าใช้งานแดชบอร์ด</p>
         </div>
-        <div style="background: #2a475e; padding: 15px; border-radius: 8px; border: 1px solid #38607d; text-align: center;">
-            <p style="color: #c7d5e0; font-size: 13px; margin: 0;"><b>💰 ราคาเฉลี่ย</b></p>
-            <h3 style="color: #66c0f4; font-size: 22px; margin: 5px 0 0 0;">${avg_price:.2f}</h3>
+        
+        <form onsubmit="handleLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">ชื่อผู้ใช้งาน (Username)</label>
+                <input type="text" id="username" required placeholder="admin" class="w-full bg-[#171a21] border border-[#38607d] rounded-md px-3 py-2 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">รหัสผ่าน (Password)</label>
+                <input type="password" id="password" required placeholder="999" class="w-full bg-[#171a21] border border-[#38607d] rounded-md px-3 py-2 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+            </div>
+            <div id="loginError" class="text-red-400 text-xs text-center hidden">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง (แนะนำ: admin / 999)</div>
+            <button type="submit" class="w-full bg-[#66c0f4] hover:bg-[#53b0e3] text-[#1b2838] font-bold py-2 rounded-md transition text-xs uppercase tracking-wider">
+                เข้าสู่ระบบ
+            </button>
+        </form>
+    </div>
+
+    <!-- 2. ส่วนหน้า Dashboard หลัก -->
+    <div id="dashboardSection" class="w-full max-w-6xl steam-bg p-4 rounded-xl shadow-2xl hidden">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#38607d]">
+            <div class="flex items-center gap-3">
+                <i class="fa-brands fa-steam text-3xl text-[#66c0f4]"></i>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Steam Game Explorer & Dashboard</h2>
+                    <p class="text-xs text-gray-400">เว็บแอปพลิเคชันสำรวจข้อมูลตลาดเกมบน Steam (100 เกมยอดนิยม)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="bg-[#171a21] text-green-400 text-xs px-3 py-1.5 rounded-full border border-green-500/30">
+                    <i class="fa-solid fa-circle text-[8px] mr-1"></i> พร้อมใช้งาน
+                </span>
+                <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded-md transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> ออกจากระบบ
+                </button>
+            </div>
         </div>
-        <div style="background: #2a475e; padding: 15px; border-radius: 8px; border: 1px solid #38607d; text-align: center;">
-            <p style="color: #c7d5e0; font-size: 13px; margin: 0;"><b>⭐ คะแนนรีวิวบวกเฉลี่ย</b></p>
-            <h3 style="color: #a4d007; font-size: 22px; margin: 5px 0 0 0;">{avg_positive:,.0f} รีวิว</h3>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="steam-card p-4 rounded-lg">
+                <p class="text-xs text-gray-400 font-semibold">จำนวนเกมทั้งหมด</p>
+                <h3 class="text-xl font-bold text-white mt-1">100 เกม</h3>
+            </div>
+            <div class="steam-card p-4 rounded-lg">
+                <p class="text-xs text-gray-400 font-semibold">แนวเกมยอดนิยมอันดับ 1</p>
+                <h3 class="text-xl font-bold text-[#66c0f4] mt-1">Action / Indie</h3>
+            </div>
+            <div class="steam-card p-4 rounded-lg">
+                <p class="text-xs text-gray-400 font-semibold">ราคาเฉลี่ยต่อเกม</p>
+                <h3 class="text-xl font-bold text-yellow-400 mt-1">$27.50</h3>
+            </div>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="steam-card p-4 rounded-lg mb-4 flex flex-col sm:flex-row gap-3 justify-between items-center">
+            <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <i class="fa-solid fa-search text-xs"></i>
+                </span>
+                <input type="text" id="notebookSearch" placeholder="ค้นหาชื่อเกม..." onkeyup="filterTable()" class="w-full bg-[#171a21] border border-[#38607d] rounded-md pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+            </div>
+            <div class="text-xs text-gray-400" id="resultCount">แสดงผล 100 รายการ</div>
+        </div>
+
+        <!-- Interactive Table -->
+        <div class="overflow-x-auto rounded-lg border border-[#38607d]">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-[#171a21] text-gray-400 uppercase border-b border-[#38607d]">
+                    <tr>
+                        <th class="py-2.5 px-3">ชื่อเกม (Name)</th>
+                        <th class="py-2.5 px-3">ผู้พัฒนา (Developer)</th>
+                        <th class="py-2.5 px-3">ประเภท (Genres)</th>
+                        <th class="py-2.5 px-3">ราคา</th>
+                        <th class="py-2.5 px-3">รีวิวบวก</th>
+                    </tr>
+                </thead>
+                <tbody id="notebookTableBody" class="divide-y divide-[#38607d]"></tbody>
+            </table>
         </div>
     </div>
-    """
-    
-    # สร้าง HTML Table พร้อมกำหนดสีหัวตารางให้เป็นสีขาวและฟ้าสว่างชัดเจน
-    table_html = """
-    <div style="overflow-x: auto; max-height: 450px; border-radius: 8px; border: 1px solid #38607d;">
-        <table style="width: 100%; border-collapse: collapse; background-color: #ffffff; text-align: left; font-size: 13px; color: #000000;">
-            <thead>
-                <tr style="background-color: #171a21; color: #ffffff; position: sticky; top: 0;">
-                    <th style="padding: 12px 15px; border-bottom: 2px solid #38607d; color: #66c0f4;">ชื่อเกม (Name)</th>
-                    <th style="padding: 12px 15px; border-bottom: 2px solid #38607d; color: #ffffff;">ผู้พัฒนา (Developer)</th>
-                    <th style="padding: 12px 15px; border-bottom: 2px solid #38607d; color: #ffffff;">แนวเกม (Genres)</th>
-                    <th style="padding: 12px 15px; border-bottom: 2px solid #38607d; color: #ffffff;">ราคา ($)</th>
-                    <th style="padding: 12px 15px; border-bottom: 2px solid #38607d; color: #ffffff;">รีวิวเชิงบวก</th>
-                    <th style="padding: 12px 15px; border-bottom: 2px solid #38607d; color: #ffffff;">เวลาเล่นเฉลี่ย (นาที)</th>
-                </tr>
-            </thead>
-            <tbody>
-    """
-    
-    if total_found == 0:
-        table_html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #000000;">ไม่พบข้อมูลเกมที่ค้นหา</td></tr>'
-    else:
-        for idx, row in filtered.iterrows():
-            bg_color = "#f8fafc" if idx % 2 == 0 else "#ffffff"
-            table_html += f"""
-                <tr style="background-color: {bg_color}; border-bottom: 1px solid #e2e8f0;">
-                    <td style="padding: 10px 15px; font-weight: bold; color: #000000;">{row.get('name', '')}</td>
-                    <td style="padding: 10px 15px; color: #334155;">{row.get('developer', '')}</td>
-                    <td style="padding: 10px 15px; color: #334155;">{row.get('genres', '')}</td>
-                    <td style="padding: 10px 15px; color: #0284c7; font-weight: bold;">${row.get('price', 0)}</td>
-                    <td style="padding: 10px 15px; color: #16a34a; font-weight: bold;">{int(row.get('positive_ratings', 0)):,}</td>
-                    <td style="padding: 10px 15px; color: #334155;">{row.get('average_playtime', 0)}</td>
-                </tr>
-            """
-            
-    table_html += """
-            </tbody>
-        </table>
-    </div>
-    """
-    
-    return kpi_html, table_html
 
-# 5. CSS จัดแต่งภาพรวมเว็บไซต์และหน้าล็อกอิน
-custom_css = """
-body, .gradio-container { background-color: #1b2838 !important; color: #ffffff !important; }
-h1, h2, h3, .prose h1, .prose h2, .prose h3 { color: #ffffff !important; font-weight: bold !important; }
-p, span, label, .prose p, .prose span { color: #c7d5e0 !important; }
-
-/* แต่งหน้าต่าง Login ให้เป็นธีม Steam สีดำ */
-.gradio-container .auth-container, div[data-testid="login"] {
-    background-color: #1b2838 !important;
-    border: 1px solid #38607d !important;
-    border-radius: 12px !important;
-}
-div[data-testid="login"] h2, div[data-testid="login"] label { color: #ffffff !important; }
-div[data-testid="login"] input {
-    background-color: #171a21 !important;
-    border: 1px solid #38607d !important;
-    color: #ffffff !important;
-}
-div[data-testid="login"] button {
-    background: linear-gradient(to bottom, #66c0f4 0%, #417a9b 100%) !important;
-    color: #ffffff !important;
-    font-weight: bold !important;
-}
-"""
-
-# 6. ออกแบบหน้าจอ Dashboard ด้วย Gradio Blocks
-with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("# 🎮 Steam Game Explorer & Dashboard")
-    gr.Markdown("ระบบสำรวจและวิเคราะห์ข้อมูลตลาดเกมบนแพลตฟอร์ม Steam ระดับมืออาชีพ (วิเคราะห์จากชุดข้อมูลจริง 27,075 เกม)")
-    
-    with gr.Tabs():
-        # แท็บที่ 1: ค้นหาและสำรวจข้อมูลเกม
-        with gr.TabItem("🔍 ค้นหาและสำรวจข้อมูลเกม"):
-            with gr.Row():
-                game_dropdown = gr.Dropdown(
-                    choices=all_game_names,
-                    label="🎯 เลือกหรือพิมพ์ชื่อเกมที่ต้องการสำรวจเชิงลึก",
-                    allow_custom_value=True,
-                    scale=4
-                )
-                clear_btn = gr.Button("🔄 รีเซ็ตค่า", scale=1)
-            
-            market_kpi = gr.HTML()
-            table_output = gr.HTML()
-            
-        # แท็บที่ 2: กราฟวิเคราะห์ภาพรวมตลาด
-        with gr.TabItem("📈 กราฟวิเคราะห์ตลาดเกม"):
-            gr.Markdown("### 📊 รายงานสถิติและแนวโน้มตลาดเกมบนแพลตฟอร์ม Steam")
-            with gr.Row():
-                chart_1 = gr.Image(value=generate_genre_chart(), label="Top 5 Game Genres Market Share", interactive=False)
-                chart_2 = gr.Image(value=generate_scatter_chart(), label="Price vs Positive Ratings Distribution", interactive=False)
-
-    # ผูกฟังก์ชัน
-    game_dropdown.change(fn=explore_steam_market, inputs=game_dropdown, outputs=[market_kpi, table_output])
-    clear_btn.click(fn=lambda: (None, *explore_steam_market("")), outputs=[game_dropdown, market_kpi, table_output])
-    
-    demo.load(fn=lambda: explore_steam_market(""), outputs=[market_kpi, table_output])
-
-# 7. รันระบบพร้อมระบบ Login และสร้าง Public URL
-demo.launch(
-    share=True,
-    auth=("admin", "999")  # Username: admin / Password: 999
-)
-</html>
+    <script>
+        const all
