@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Steam Game Explorer Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .steam-bg { background-color: #1b2838; color: #c7d5e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .steam-card { background-color: #2a475e; border: 1px solid #38607d; }
+        .steam-table-row:hover { background-color: #38607d50; }
+    </style>
+</head>
+<body class="steam-bg p-4 rounded-xl shadow-2xl">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#38607d]">
+        <div class="flex items-center gap-3">
+            <i class="fa-brands fa-steam text-3xl text-[#66c0f4]"></i>
+            <div>
+                <h2 class="text-xl font-bold text-white">Steam Game Explorer & Dashboard</h2>
+                <p class="text-xs text-gray-400">เว็บแอปพลิเคชันสำรวจข้อมูลตลาดเกมบน Steam (27,075 เกม)</p>
+            </div>
+        </div>
+        <span class="bg-[#171a21] text-green-400 text-xs px-3 py-1.5 rounded-full border border-green-500/30">
+            <i class="fa-solid fa-circle text-[8px] mr-1"></i> พร้อมใช้งาน
+        </span>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="steam-card p-4 rounded-lg">
+            <p class="text-xs text-gray-400 font-semibold">จำนวนเกมทั้งหมด</p>
+            <h3 class="text-xl font-bold text-white mt-1">27,075 เกม</h3>
+        </div>
+        <div class="steam-card p-4 rounded-lg">
+            <p class="text-xs text-gray-400 font-semibold">แนวเกมยอดนิยมอันดับ 1</p>
+            <h3 class="text-xl font-bold text-[#66c0f4] mt-1">Indie (71.7%)</h3>
+        </div>
+        <div class="steam-card p-4 rounded-lg">
+            <p class="text-xs text-gray-400 font-semibold">ราคาเฉลี่ยต่อเกม</p>
+            <h3 class="text-xl font-bold text-yellow-400 mt-1">$5.82</h3>
+        </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="steam-card p-4 rounded-lg mb-4 flex flex-col sm:flex-row gap-3 justify-between items-center">
+        <div class="relative w-full sm:w-72">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <i class="fa-solid fa-search text-xs"></i>
+            </span>
+            <input type="text" id="notebookSearch" placeholder="ค้นหาชื่อเกม..." onkeyup="filterTable()" class="w-full bg-[#171a21] border border-[#38607d] rounded-md pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+        </div>
+        <div class="text-xs text-gray-400" id="resultCount">แสดงผล 5 รายการ</div>
+    </div>
+
+    <!-- Interactive Table -->
+    <div class="overflow-x-auto rounded-lg border border-[#38607d]">
+        <table class="w-full text-left text-xs">
+            <thead class="bg-[#171a21] text-gray-400 uppercase border-b border-[#38607d]">
+                <tr>
+                    <th class="py-2.5 px-3">ชื่อเกม (Name)</th>
+                    <th class="py-2.5 px-3">ผู้พัฒนา (Developer)</th>
+                    <th class="py-2.5 px-3">ประเภท (Genres)</th>
+                    <th class="py-2.5 px-3">ราคา</th>
+                    <th class="py-2.5 px-3">รีวิวบวก</th>
+                </tr>
+            </thead>
+            <tbody id="notebookTableBody" class="divide-y divide-[#38607d]">
+                <!-- โหลดข้อมูลด้วย JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const webGames = [
+            { name: "Counter-Strike", developer: "Valve", genres: "Action", price: "$7.19", ratings: "124,534" },
+            { name: "Dota 2", developer: "Valve", genres: "Action;Free to Play", price: "Free", ratings: "850,000" },
+            { name: "Stardew Valley", developer: "ConcernedApe", genres: "Indie;RPG", price: "$14.99", ratings: "420,000" },
+            { name: "Terraria", developer: "Re-Logic", genres: "Action;Indie", price: "$9.99", ratings: "750,000" },
+            { name: "Portal 2", developer: "Valve", genres: "Action;Adventure", price: "$9.99", ratings: "510,000" }
+        ];
+
+        function renderWebTable(data) {
+            const tbody = document.getElementById('notebookTableBody');
+            tbody.innerHTML = '';
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-3 px-3 text-center text-gray-400">ไม่พบข้อมูลเกม</td></tr>`;
+                document.getElementById('resultCount').innerText = `แสดงผล 0 รายการ`;
+                return;
+            }
+            data.forEach(g => {
+                tbody.innerHTML += `
+                    <tr class="steam-table-row">
+                        <td class="py-2.5 px-3 font-semibold text-white">${g.name}</td>
+                        <td class="py-2.5 px-3 text-gray-300">${g.developer}</td>
+                        <td class="py-2.5 px-3"><span class="bg-[#171a21] px-2 py-0.5 rounded text-[#66c0f4] border border-[#38607d]">${g.genres}</span></td>
+                        <td class="py-2.5 px-3 text-yellow-400 font-semibold">${g.price}</td>
+                        <td class="py-2.5 px-3 text-green-400">${g.ratings}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('resultCount').innerText = `แสดงผล ${data.length} รายการ`;
+        }
+
+        function filterTable() {
+            const keyword = document.getElementById('notebookSearch').value.toLowerCase();
+            const filtered = webGames.filter(g => g.name.toLowerCase().includes(keyword) || g.developer.toLowerCase().includes(keyword));
+            renderWebTable(filtered);
+        }
+
+        renderWebTable(webGames);
+    </script>
+</body>
+</html>
+
