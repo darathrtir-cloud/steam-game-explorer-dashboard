@@ -19,7 +19,7 @@
             <i class="fa-brands fa-steam text-3xl text-[#66c0f4]"></i>
             <div>
                 <h2 class="text-xl font-bold text-white">Steam Game Explorer & Dashboard</h2>
-                <p class="text-xs text-gray-400">เว็บแอปพลิเคชันสำรวจข้อมูลตลาดเกมบน Steam (27,075 เกม)</p>
+                <p class="text-xs text-gray-400">เว็บแอปพลิเคชันสำรวจข้อมูลตลาดเกมบน Steam</p>
             </div>
         </div>
         <span class="bg-[#171a21] text-green-400 text-xs px-3 py-1.5 rounded-full border border-green-500/30">
@@ -31,15 +31,15 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="steam-card p-4 rounded-lg">
             <p class="text-xs text-gray-400 font-semibold">จำนวนเกมทั้งหมด</p>
-            <h3 class="text-xl font-bold text-white mt-1">27,075 เกม</h3>
+            <h3 class="text-xl font-bold text-white mt-1" id="totalGamesCount">กำลังโหลด...</h3>
         </div>
         <div class="steam-card p-4 rounded-lg">
             <p class="text-xs text-gray-400 font-semibold">แนวเกมยอดนิยมอันดับ 1</p>
-            <h3 class="text-xl font-bold text-[#66c0f4] mt-1">Indie (71.7%)</h3>
+            <h3 class="text-xl font-bold text-[#66c0f4] mt-1">Indie / Action</h3>
         </div>
         <div class="steam-card p-4 rounded-lg">
             <p class="text-xs text-gray-400 font-semibold">ราคาเฉลี่ยต่อเกม</p>
-            <h3 class="text-xl font-bold text-yellow-400 mt-1">$5.82</h3>
+            <h3 class="text-xl font-bold text-yellow-400 mt-1">อัปเดตตามข้อมูล</h3>
         </div>
     </div>
 
@@ -51,7 +51,7 @@
             </span>
             <input type="text" id="notebookSearch" placeholder="ค้นหาชื่อเกม..." onkeyup="filterTable()" class="w-full bg-[#171a21] border border-[#38607d] rounded-md pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
         </div>
-        <div class="text-xs text-gray-400" id="resultCount">แสดงผล 5 รายการ</div>
+        <div class="text-xs text-gray-400" id="resultCount">กำลังโหลดข้อมูล...</div>
     </div>
 
     <!-- Interactive Table -->
@@ -73,30 +73,50 @@
     </div>
 
     <script>
-        const webGames = [
-            { name: "Counter-Strike", developer: "Valve", genres: "Action", price: "$7.19", ratings: "124,534" },
-            { name: "Dota 2", developer: "Valve", genres: "Action;Free to Play", price: "Free", ratings: "850,000" },
-            { name: "Stardew Valley", developer: "ConcernedApe", genres: "Indie;RPG", price: "$14.99", ratings: "420,000" },
-            { name: "Terraria", developer: "Re-Logic", genres: "Action;Indie", price: "$9.99", ratings: "750,000" },
-            { name: "Portal 2", developer: "Valve", genres: "Action;Adventure", price: "$9.99", ratings: "510,000" }
-        ];
+        let allGames = [];
+
+        // ฟังก์ชันดึงข้อมูลจากไฟล์ games.json ที่คุณสร้างไว้
+        async function loadGamesData() {
+            try {
+                const response = await fetch('games.json');
+                if (!response.ok) throw new Error('ไม่สามารถโหลดไฟล์ games.json ได้');
+                allGames = await response.json();
+                
+                // อัปเดตตัวเลขจำนวนเกมทั้งหมด
+                document.getElementById('totalGamesCount').innerText = `${allGames.length} เกม`;
+                
+                // แสดงผลข้อมูลทั้งหมดในตาราง
+                renderWebTable(allGames);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('notebookTableBody').innerHTML = `<tr><td colspan="5" class="py-3 px-3 text-center text-red-400">เกิดข้อผิดพลาดในการโหลดข้อมูลเกม</td></tr>`;
+            }
+        }
 
         function renderWebTable(data) {
             const tbody = document.getElementById('notebookTableBody');
             tbody.innerHTML = '';
             if(data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-3 px-3 text-center text-gray-400">ไม่พบข้อมูลเกม</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-3 px-3 text-center text-gray-400">ไม่พบข้อมูลเกมที่ค้นหา</td></tr>`;
                 document.getElementById('resultCount').innerText = `แสดงผล 0 รายการ`;
                 return;
             }
             data.forEach(g => {
+                // รองรับคีย์ข้อมูลทั้งแบบตัวพิมพ์เล็กและตัวพิมพ์ใหญ่
+                const name = g.name || g.Name || '-';
+                const developer = g.developer || g.Developer || '-';
+                const genres = g.genres || g.Genres || '-';
+                const price = g.price || g.Price || 'Free';
+                // จัดรูปแบบรีวิวบวกให้สวยงาม (ถ้าเป็นตัวเลขให้ใส่คอมม่า)
+                const positiveReviews = g.positive_reviews !== undefined ? Number(g.positive_reviews).toLocaleString() : (g.ratings || '-');
+
                 tbody.innerHTML += `
                     <tr class="steam-table-row">
-                        <td class="py-2.5 px-3 font-semibold text-white">${g.name}</td>
-                        <td class="py-2.5 px-3 text-gray-300">${g.developer}</td>
-                        <td class="py-2.5 px-3"><span class="bg-[#171a21] px-2 py-0.5 rounded text-[#66c0f4] border border-[#38607d]">${g.genres}</span></td>
-                        <td class="py-2.5 px-3 text-yellow-400 font-semibold">${g.price}</td>
-                        <td class="py-2.5 px-3 text-green-400">${g.ratings}</td>
+                        <td class="py-2.5 px-3 font-semibold text-white">${name}</td>
+                        <td class="py-2.5 px-3 text-gray-300">${developer}</td>
+                        <td class="py-2.5 px-3"><span class="bg-[#171a21] px-2 py-0.5 rounded text-[#66c0f4] border border-[#38607d]">${genres}</span></td>
+                        <td class="py-2.5 px-3 text-yellow-400 font-semibold">${price}</td>
+                        <td class="py-2.5 px-3 text-green-400">${positiveReviews}</td>
                     </tr>
                 `;
             });
@@ -105,11 +125,16 @@
 
         function filterTable() {
             const keyword = document.getElementById('notebookSearch').value.toLowerCase();
-            const filtered = webGames.filter(g => g.name.toLowerCase().includes(keyword) || g.developer.toLowerCase().includes(keyword));
+            const filtered = allGames.filter(g => {
+                const name = (g.name || g.Name || '').toLowerCase();
+                const developer = (g.developer || g.Developer || '').toLowerCase();
+                return name.includes(keyword) || developer.includes(keyword);
+            });
             renderWebTable(filtered);
         }
 
-        renderWebTable(webGames);
+        // เริ่มต้นโหลดข้อมูลเมื่อเปิดหน้าเว็บ
+        loadGamesData();
     </script>
 </body>
 </html>
