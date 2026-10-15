@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Steam Game Explorer Dashboard</title>
+    <title>Steam Game Explorer Dashboard - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,65 +11,98 @@
         .steam-table-row:hover { background-color: #38607d50; }
     </style>
 </head>
-<body class="steam-bg p-4 rounded-xl shadow-2xl">
+<body class="steam-bg min-h-screen flex items-center justify-center p-4">
 
-    <!-- Header -->
-    <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#38607d]">
-        <div class="flex items-center gap-3">
-            <i class="fa-brands fa-steam text-3xl text-[#66c0f4]"></i>
+    <!-- 1. ส่วนหน้า Login (แสดงเป็นค่าเริ่มต้น) -->
+    <div id="loginSection" class="steam-card w-full max-w-md p-8 rounded-xl shadow-2xl">
+        <div class="text-center mb-6">
+            <i class="fa-brands fa-steam text-5xl text-[#66c0f4] mb-3"></i>
+            <h2 class="text-2xl font-bold text-white">เข้าสู่ระบบ Steam Explorer</h2>
+            <p class="text-xs text-gray-400 mt-1">กรุณายืนยันตัวตนเพื่อเข้าใช้งานแดชบอร์ด</p>
+        </div>
+        
+        <form onsubmit="handleLogin(event)" class="space-y-4">
             <div>
-                <h2 class="text-xl font-bold text-white">Steam Game Explorer & Dashboard</h2>
-                <p class="text-xs text-gray-400">เว็บแอปพลิเคชันสำรวจข้อมูลตลาดเกมบน Steam (100 เกมยอดนิยม)</p>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">ชื่อผู้ใช้งาน (Username)</label>
+                <input type="text" id="username" required placeholder="กรอกชื่อผู้ใช้..." class="w-full bg-[#171a21] border border-[#38607d] rounded-md px-3 py-2 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">รหัสผ่าน (Password)</label>
+                <input type="password" id="password" required placeholder="กรอกรหัสผ่าน..." class="w-full bg-[#171a21] border border-[#38607d] rounded-md px-3 py-2 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+            </div>
+            <div id="loginError" class="text-red-400 text-xs text-center hidden">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง (แนะนำ: admin / 1234)</div>
+            <button type="submit" class="w-full bg-[#66c0f4] hover:bg-[#53b0e3] text-[#1b2838] font-bold py-2 rounded-md transition text-xs uppercase tracking-wider">
+                เข้าสู่ระบบ
+            </button>
+        </form>
+    </div>
+
+    <!-- 2. ส่วนหน้า Dashboard หลัก (ซ่อนไว้ก่อนจนกว่าจะล็อกอินสำเร็จ) -->
+    <div id="dashboardSection" class="w-full max-w-6xl steam-bg p-4 rounded-xl shadow-2xl hidden">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#38607d]">
+            <div class="flex items-center gap-3">
+                <i class="fa-brands fa-steam text-3xl text-[#66c0f4]"></i>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Steam Game Explorer & Dashboard</h2>
+                    <p class="text-xs text-gray-400">เว็บแอปพลิเคชันสำรวจข้อมูลตลาดเกมบน Steam (100 เกมยอดนิยม)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="bg-[#171a21] text-green-400 text-xs px-3 py-1.5 rounded-full border border-green-500/30">
+                    <i class="fa-solid fa-circle text-[8px] mr-1"></i> พร้อมใช้งาน
+                </span>
+                <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded-md transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> ออกจากระบบ
+                </button>
             </div>
         </div>
-        <span class="bg-[#171a21] text-green-400 text-xs px-3 py-1.5 rounded-full border border-green-500/30">
-            <i class="fa-solid fa-circle text-[8px] mr-1"></i> พร้อมใช้งาน
-        </span>
-    </div>
 
-    <!-- KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="steam-card p-4 rounded-lg">
-            <p class="text-xs text-gray-400 font-semibold">จำนวนเกมทั้งหมด</p>
-            <h3 class="text-xl font-bold text-white mt-1" id="totalGamesCount">100 เกม</h3>
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="steam-card p-4 rounded-lg">
+                <p class="text-xs text-gray-400 font-semibold">จำนวนเกมทั้งหมด</p>
+                <h3 class="text-xl font-bold text-white mt-1">100 เกม</h3>
+            </div>
+            <div class="steam-card p-4 rounded-lg">
+                <p class="text-xs text-gray-400 font-semibold">แนวเกมยอดนิยมอันดับ 1</p>
+                <h3 class="text-xl font-bold text-[#66c0f4] mt-1">Action / Indie</h3>
+            </div>
+            <div class="steam-card p-4 rounded-lg">
+                <p class="text-xs text-gray-400 font-semibold">ราคาเฉลี่ยต่อเกม</p>
+                <h3 class="text-xl font-bold text-yellow-400 mt-1">$27.50</h3>
+            </div>
         </div>
-        <div class="steam-card p-4 rounded-lg">
-            <p class="text-xs text-gray-400 font-semibold">แนวเกมยอดนิยมอันดับ 1</p>
-            <h3 class="text-xl font-bold text-[#66c0f4] mt-1">Action / Indie</h3>
-        </div>
-        <div class="steam-card p-4 rounded-lg">
-            <p class="text-xs text-gray-400 font-semibold">ราคาเฉลี่ยต่อเกม</p>
-            <h3 class="text-xl font-bold text-yellow-400 mt-1">$27.50</h3>
-        </div>
-    </div>
 
-    <!-- Search & Filter Bar -->
-    <div class="steam-card p-4 rounded-lg mb-4 flex flex-col sm:flex-row gap-3 justify-between items-center">
-        <div class="relative w-full sm:w-72">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <i class="fa-solid fa-search text-xs"></i>
-            </span>
-            <input type="text" id="notebookSearch" placeholder="ค้นหาชื่อเกม..." onkeyup="filterTable()" class="w-full bg-[#171a21] border border-[#38607d] rounded-md pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+        <!-- Search & Filter Bar -->
+        <div class="steam-card p-4 rounded-lg mb-4 flex flex-col sm:flex-row gap-3 justify-between items-center">
+            <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <i class="fa-solid fa-search text-xs"></i>
+                </span>
+                <input type="text" id="notebookSearch" placeholder="ค้นหาชื่อเกม..." onkeyup="filterTable()" class="w-full bg-[#171a21] border border-[#38607d] rounded-md pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#66c0f4]">
+            </div>
+            <div class="text-xs text-gray-400" id="resultCount">แสดงผล 100 รายการ</div>
         </div>
-        <div class="text-xs text-gray-400" id="resultCount">แสดงผล 100 รายการ</div>
-    </div>
 
-    <!-- Interactive Table -->
-    <div class="overflow-x-auto rounded-lg border border-[#38607d]">
-        <table class="w-full text-left text-xs">
-            <thead class="bg-[#171a21] text-gray-400 uppercase border-b border-[#38607d]">
-                <tr>
-                    <th class="py-2.5 px-3">ชื่อเกม (Name)</th>
-                    <th class="py-2.5 px-3">ผู้พัฒนา (Developer)</th>
-                    <th class="py-2.5 px-3">ประเภท (Genres)</th>
-                    <th class="py-2.5 px-3">ราคา</th>
-                    <th class="py-2.5 px-3">รีวิวบวก</th>
-                </tr>
-            </thead>
-            <tbody id="notebookTableBody" class="divide-y divide-[#38607d]">
-                <!-- โหลดข้อมูลด้วย JS -->
-            </tbody>
-        </table>
+        <!-- Interactive Table -->
+        <div class="overflow-x-auto rounded-lg border border-[#38607d]">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-[#171a21] text-gray-400 uppercase border-b border-[#38607d]">
+                    <tr>
+                        <th class="py-2.5 px-3">ชื่อเกม (Name)</th>
+                        <th class="py-2.5 px-3">ผู้พัฒนา (Developer)</th>
+                        <th class="py-2.5 px-3">ประเภท (Genres)</th>
+                        <th class="py-2.5 px-3">ราคา</th>
+                        <th class="py-2.5 px-3">รีวิวบวก</th>
+                    </tr>
+                </thead>
+                <tbody id="notebookTableBody" class="divide-y divide-[#38607d]">
+                    <!-- โหลดข้อมูลด้วย JS -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -127,7 +160,7 @@
             { name: "The Binding of Isaac: Rebirth", developer: "Nicalis", genres: "Action;Indie", price: "$14.99", ratings: "270,000" },
             { name: "Slay the Spire", developer: "Mega Crit Games", genres: "Indie;Strategy", price: "$24.99", ratings: "140,000" },
             { name: "Balatro", developer: "LocalThunk", genres: "Indie;Strategy", price: "$14.99", ratings: "65,000" },
-            { name: "Vampire Survivors", developer: "poncle", "genres": "Action;Casual;Indie", price: "$4.99", ratings: "210,000" },
+            { name: "Vampire Survivors", developer: "poncle", genres: "Action;Casual;Indie", price: "$4.99", ratings: "210,000" },
             { name: "Lethal Company", developer: "Zeekerss", genres: "Action;Indie", price: "$9.99", ratings: "260,000" },
             { name: "Among Us", developer: "Innersloth", genres: "Casual;Indie", price: "$4.99", ratings: "150,000" },
             { name: "Propnight", developer: "FNTASTIC", genres: "Action;Casual;Indie", price: "$19.99", ratings: "15,000" },
@@ -176,6 +209,31 @@
             { name: "Supreme Commander: Forged Alliance", developer: "Gas Powered Games", genres: "Strategy", price: "$14.99", ratings: "15,000" }
         ];
 
+        // ฟังก์ชันจัดการการล็อกอิน (ตั้งค่า Username: admin, Password: 1234 หรือใส่อะไรก็ได้ตามชอบ)
+        function handleLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            // ตรวจสอบรหัสผ่าน (สามารถเปลี่ยนเงื่อนไขตรงนี้ได้ตามต้องการ)
+            if (user === "admin" && pass === "1234") {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                renderWebTable(allGames);
+            } else {
+                // กรณีอยากให้ใครงดเว้นหรือผ่านได้ง่าย ให้ลบเงื่อนไข if ออกแล้วเปิดแดชบอร์ดได้เลย
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
         function renderWebTable(data) {
             const tbody = document.getElementById('notebookTableBody');
             tbody.innerHTML = '';
@@ -203,9 +261,6 @@
             const filtered = allGames.filter(g => g.name.toLowerCase().includes(keyword) || g.developer.toLowerCase().includes(keyword));
             renderWebTable(filtered);
         }
-
-        // โหลดข้อมูลทั้งหมดครั้งแรก
-        renderWebTable(allGames);
     </script>
 </body>
 </html>
